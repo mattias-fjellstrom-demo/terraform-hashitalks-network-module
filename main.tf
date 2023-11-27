@@ -15,5 +15,3 @@ resource "azurerm_subnet" "this" {
   resource_group_name  = var.resource_group.name
   address_prefixes     = [each.value.subnet_cidr_range]
 }
-
-
