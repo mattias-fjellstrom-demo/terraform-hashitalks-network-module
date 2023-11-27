@@ -51,7 +51,7 @@ run "should_create_correct_number_of_subnets" {
   }
 
   assert {
-    condition     = length(azurerm_subnet.this[*].name) == 2
+    condition     = length(azurerm_subnet.this) == 2
     error_message = "Incorrect number of subnets were created"
   }
 }
