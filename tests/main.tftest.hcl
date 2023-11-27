@@ -14,7 +14,20 @@ run "setup" {
   }
 }
 
-run "network" {
+run "should_not_accept_non_rfc_1918_cidr_range" {
+  command = plan
+
+  variables {
+    vnet_cidr_range = "33.33.0.0/16"
+    resource_group  = run.setup.resource_group
+  }
+
+  expect_failures = [
+    var.vnet_cidr_range,
+  ]
+}
+
+run "should_create_correct_number_of_subnets" {
   variables {
     vnet_cidr_range = "10.0.0.0/8"
     resource_group  = run.setup.resource_group
@@ -32,7 +45,7 @@ run "network" {
   }
 
   assert {
-    condition     = length(azurerm_subnet.this[*]) == 2
+    condition     = length(azurerm_subnet.this[*].name) == 2
     error_message = "Incorrect number of subnets were created"
   }
 }
