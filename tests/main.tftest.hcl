@@ -1,3 +1,7 @@
+provider "azurerm" {
+  features {}
+}
+
 variables {
   name_suffix = "test"
   location    = "swedencentral"
@@ -19,7 +23,7 @@ run "network" {
       {
         name              = "subnet-1"
         subnet_cidr_range = "10.0.10.0/24"
-      }
+      },
       {
         name              = "subnet-2"
         subnet_cidr_range = "10.0.20.0/24"
