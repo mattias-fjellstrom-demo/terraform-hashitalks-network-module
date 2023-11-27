@@ -20,6 +20,12 @@ run "should_not_accept_non_rfc_1918_cidr_range" {
   variables {
     vnet_cidr_range = "33.33.0.0/16"
     resource_group  = run.setup.resource_group
+    subnets = [
+      {
+        name              = "subnet-1"
+        subnet_cidr_range = "33.33.10.0/24"
+      }
+    ]
   }
 
   expect_failures = [
