@@ -55,3 +55,6 @@ run "should_create_correct_number_of_subnets" {
     error_message = "Incorrect number of subnets were created"
   }
 }
+
+// add tests to see that subnet ranges are valid
+// i.e. if vnet cidr is 10.0.0.0/16, invalid subnets include 10.0.10.0/16 etc

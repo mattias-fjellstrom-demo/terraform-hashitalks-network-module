@@ -4,6 +4,12 @@ output "virtual_network" {
 }
 
 output "subnets" {
-  value       = azurerm_subnet.this[*]
+  value = [
+    for k, v in azurerm_subnet.this :
+    {
+      id   = azurerm_subnet.this[k].id
+      name = azurerm_subnet.this[k].name
+    }
+  ]
   description = "Subnet resources"
 }
