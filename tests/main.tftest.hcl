@@ -25,7 +25,7 @@ run "should_not_allow_vnet_name_prefix" {
   command = plan
 
   variables {
-    name_suffix    = "vnet-test"
+    name_suffix = "vnet-test"
   }
 
   expect_failures = [
@@ -37,7 +37,7 @@ run "should_not_allow_too_long_name" {
   command = plan
 
   variables {
-    name_suffix    = replace("**********", "*", "abcdefghij")
+    name_suffix = replace("**********", "*", "abcdefghij")
   }
 
   expect_failures = [
@@ -61,6 +61,28 @@ run "should_not_allow_non_rfc_1918_cidr_space" {
   expect_failures = [
     var.vnet_cidr_range,
   ]
+}
+
+run "subnet_names_should_have_prefix" {
+  command = plan
+
+  variables {
+    subnets = [
+      {
+        name              = "subnet-1"
+        subnet_cidr_range = "10.0.10.0/24"
+      },
+      {
+        name              = "subnet-2"
+        subnet_cidr_range = "10.0.20.0/24"
+      }
+    ]
+  }
+
+  assert {
+    condition     = alltrue([for k, v in azurerm_subnet.this : startswith(azurerm_subnet.this[k].name, "snet-")])
+    error_message = "Subnet name prefix is not set correctly"
+  }
 }
 
 run "should_plan_correct_number_of_subnets" {
