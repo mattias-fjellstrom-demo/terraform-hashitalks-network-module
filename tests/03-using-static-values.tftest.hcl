@@ -1,26 +1,36 @@
+// -----------------------------------------------------------------------------
+// CONFIGURE PROVIDERS
+// -----------------------------------------------------------------------------
 provider "azurerm" {
   features {}
 }
 
+// -----------------------------------------------------------------------------
+// CONFIGURE VARIABLES
+// -----------------------------------------------------------------------------
 variables {
-  name_suffix     = "test"
-  location        = "swedencentral"
+  name_suffix     = "hashitalks"
   vnet_cidr_range = "10.0.0.0/8"
-  resource_group = {
-    name     = "rg-fake-resource-group"
-    location = "swedencentral"
-    tags = {
-      project = "hashitalks"
-    }
-  }
   subnets = [
     {
       name              = "subnet-1"
       subnet_cidr_range = "10.0.10.0/24"
     }
   ]
+  resource_group = {
+    name     = "rg-hashitalks"
+    location = "swedencentral"
+    tags = {
+      team        = "HashiTalks Team"
+      project     = "HashiTalks Project"
+      cost_center = "1234"
+    }
+  }
 }
 
+// -----------------------------------------------------------------------------
+// TESTS
+// -----------------------------------------------------------------------------
 run "should_not_allow_vnet_name_prefix" {
   command = plan
 
@@ -33,7 +43,7 @@ run "should_not_allow_vnet_name_prefix" {
   ]
 }
 
-run "should_not_allow_too_long_name" {
+run "should_enforce_name_suffix_length_constraint" {
   command = plan
 
   variables {
@@ -108,39 +118,5 @@ run "should_plan_correct_number_of_subnets" {
   assert {
     condition     = length(azurerm_subnet.this) == 3
     error_message = "Incorrect number of subnets in plan"
-  }
-}
-
-run "setup_resource_group_dependency" {
-  module {
-    source  = "app.terraform.io/mattias-fjellstrom/resource-group-module/hashitalks"
-    version = "1.0.0"
-  }
-}
-
-run "should_output_correct_number_of_subnets" {
-  command = apply
-
-  variables {
-    resource_group = run.setup_resource_group_dependency.resource_group
-    subnets = [
-      {
-        name              = "subnet-1"
-        subnet_cidr_range = "10.0.10.0/24"
-      },
-      {
-        name              = "subnet-2"
-        subnet_cidr_range = "10.0.20.0/24"
-      },
-      {
-        name              = "subnet-3"
-        subnet_cidr_range = "10.0.30.0/24"
-      }
-    ]
-  }
-
-  assert {
-    condition     = length(output.subnets) == 3
-    error_message = "Incorrect number of subnets were created"
   }
 }
