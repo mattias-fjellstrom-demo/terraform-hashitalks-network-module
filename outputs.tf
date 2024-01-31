@@ -11,5 +11,5 @@ output "subnets" {
       name = azurerm_subnet.this[k].name
     }
   ]
-  description = "Subnet resources"
+  description = "List of subnet objects (id, name)"
 }

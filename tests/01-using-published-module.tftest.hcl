@@ -34,7 +34,7 @@ run "setup_resource_group" {
 
   module {
     source  = "app.terraform.io/mattias-fjellstrom/resource-group-module/hashitalks"
-    version = "1.0.1"
+    version = "3.1.0"
   }
 }
 
@@ -161,4 +161,55 @@ run "should_output_correct_number_of_subnets" {
     condition     = length(output.subnets) == 3
     error_message = "Incorrect number of subnets in output"
   }
+}
+
+run "should_require_one_subnet" {
+  command = plan
+
+  variables {
+    subnets        = []
+    resource_group = run.setup_resource_group.resource_group
+  }
+
+  expect_failures = [
+    var.subnets,
+  ]
+}
+
+run "should_detect_incompatible_subnet_cidr" {
+  command = plan
+
+  variables {
+    vnet_cidr_range = "10.0.0.0/8"
+    subnets = [
+      {
+        name              = "subnet-1"
+        subnet_cidr_range = "192.168.0.0/24"
+      }
+    ]
+    resource_group = run.setup_resource_group.resource_group
+  }
+
+  expect_failures = [
+    azurerm_subnet.this
+  ]
+}
+
+run "should_not_allow_too_big_subnet" {
+  command = plan
+
+  variables {
+    vnet_cidr_range = "10.0.0.0/16"
+    subnets = [
+      {
+        name              = "subnet-1"
+        subnet_cidr_range = "10.0.0.0/8"
+      }
+    ]
+    resource_group = run.setup_resource_group.resource_group
+  }
+
+  expect_failures = [
+    azurerm_subnet.this
+  ]
 }
